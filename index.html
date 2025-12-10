@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Kerstkaart Minor Praktijkgericht Lesgeven</title>
+  <style>
+    :root {
+      --card-width: 1065px;
+      --card-height: 768px;
+      --transition-speed: 0.35s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1a2846, #050814 60%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: #fff;
+    }
+
+    .scene {
+      perspective: 1500px;
+      cursor: pointer;
+      padding: 40px;
+    }
+
+    .card {
+      position: relative;
+      width: var(--card-width);
+      height: var(--card-height);
+      transform-style: preserve-3d;
+      transition:
+        transform var(--transition-speed) ease,
+        box-shadow 0.25s ease;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+    }
+
+    .card.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background-size: cover;
+      background-position: center;
+      backface-visibility: hidden;
+    }
+
+    .face--front {
+      background-image: url('kerstkaart_voorzijde.jpg');
+    }
+
+    .face--back {
+      background-image: url('kerstkaart_achterzijde.jpg');
+      transform: rotateY(180deg);
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 14px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" id="card-scene">
+    <div class="card" id="card">
+      <div class="face face--front"></div>
+      <div class="face face--back"></div>
+    </div>
+    <p class="hint">
+      Klik op de kaart om de andere zijde te bekijken.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      const scene = document.getElementById("card-scene");
+      const card  = document.getElementById("card");
+
+      let currentRotationX = 0;
+      let currentRotationY = 0;
+      let isFlipped = false;
+
+      scene.addEventListener("mousemove", (e) => {
+        const rect = scene.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const midX = rect.width / 2;
+        const midY = rect.height / 2;
+
+        const ratioX = (x - midX) / midX;
+        const ratioY = (y - midY) / midY;
+
+        const max = 12;
+        currentRotationY = ratioX * max;
+        currentRotationX = -ratioY * max;
+
+        updateTransform();
+      });
+
+      scene.addEventListener("mouseleave", () => {
+        currentRotationX = 0;
+        currentRotationY = 0;
+        updateTransform();
+      });
+
+      scene.addEventListener("click", () => {
+        isFlipped = !isFlipped;
+        card.classList.toggle("is-flipped", isFlipped);
+      });
+
+      function updateTransform() {
+        const rotatePart = `rotateX(${currentRotationX}deg) rotateY(${currentRotationY}deg)`;
+        card.style.transform = `${rotatePart} ${isFlipped ? "rotateY(180deg)" : ""}`;
+      }
+    })();
+  </script>
+</body>
+</html>
